@@ -8,7 +8,7 @@ import Login from "@/features/auth/Login";
 import Signup from "@/features/auth/Signup";
 import LandingPage from "@/features/public/LandingPage";
 import AboutPage from "@/features/public/AboutPage";
-import QuestionnaireExperience from "@/features/public/QuestionnaireExperience";
+import QuestionnairePage from "@/features/public/QuestionnairePage";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import PublicLayout from "@/components/layout/PublicLayout";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <LandingPage /> },
       { path: "/about", element: <AboutPage /> },
-      { path: "/questionnaire", element: <QuestionnaireExperience /> },
+      { path: "/questionnaire", element: <QuestionnairePage /> },
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
     ],
