@@ -17,11 +17,11 @@ import {
   Camera,
   Info
 } from 'lucide-react'
-import { useAuthStore, useUIStore } from '../../store'
-import usePageTitle from '../../utils/usePageTitle'
-import { getChildren, createChild } from '../../api/children.api'
-import { startScreening, getScreeningQuestions, submitScreening } from '../../api/screening.api'
-import LoadingSpinner from '../../components/shared/LoadingSpinner'
+import { useAuthStore, useUIStore } from '@/store'
+import usePageTitle from '@/utils/usePageTitle'
+import { getChildren, createChild } from '@/api/children.api'
+import { startScreening, getScreeningQuestions, submitScreening } from '@/api/screening.api'
+import LoadingSpinner from '@/components/shared/LoadingSpinner'
 
 export default function ParentQuestionnairePage() {
   const navigate = useNavigate()

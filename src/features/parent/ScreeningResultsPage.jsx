@@ -10,11 +10,11 @@ import {
   CheckCircle2,
   Filter
 } from 'lucide-react'
-import { getScreeningResults, getScreeningAnalytics } from '../../api/screening.api'
-import { getChildren } from '../../api/children.api'
-import usePageTitle from '../../utils/usePageTitle'
-import LoadingSpinner from '../../components/shared/LoadingSpinner'
-import { useUIStore } from '../../store'
+import { getScreeningResults, getScreeningAnalytics } from '@/api/screening.api'
+import { getChildren } from '@/api/children.api'
+import usePageTitle from '@/utils/usePageTitle'
+import LoadingSpinner from '@/components/shared/LoadingSpinner'
+import { useUIStore } from '@/store'
 
 export default function ScreeningResultsPage() {
   const { childId: paramChildId } = useParams()
