@@ -108,7 +108,12 @@ export default function ParentHomeDashboard() {
         </div>
       </section>
 
-      {nextSession && <SessionHighlight title={nextSession.homeRoleLabel.parent} session={nextSession} />}
+      {nextSession && (
+        <SessionHighlight 
+          title={nextSession.homeRoleLabel?.parent || 'Next Session'} 
+          session={nextSession} 
+        />
+      )}
 
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
@@ -241,7 +246,7 @@ export default function ParentHomeDashboard() {
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Age</p>
-              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{selectedChild.age} years</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{selectedChild?.age || 'N/A'} years</p>
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Gender</p>

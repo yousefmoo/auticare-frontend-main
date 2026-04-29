@@ -99,10 +99,15 @@ export default function ParentQuestionnairePage() {
 
   useEffect(() => {
     const init = async () => {
+      // Safety timeout: stop loading after 6 seconds even if API hangs
+      const safetyTimer = setTimeout(() => {
+        setIsLoading(false);
+      }, 6000);
+
       try {
         const childrenData = await getChildren()
-        setChildren(childrenData)
-        if (childrenData.length > 0) {
+        setChildren(Array.isArray(childrenData) ? childrenData : [])
+        if (Array.isArray(childrenData) && childrenData.length > 0) {
           setStep(-1) // Show selection
         } else {
           setStep(0) // No children, show form
@@ -111,6 +116,7 @@ export default function ParentQuestionnairePage() {
         console.error('Failed to fetch children:', err)
         setStep(0)
       } finally {
+        clearTimeout(safetyTimer);
         setIsLoading(false)
       }
     }
@@ -118,6 +124,13 @@ export default function ParentQuestionnairePage() {
   }, [])
 
   const fetchQuestions = async () => {
+    // Safety timeout: stop loading after 8 seconds
+    const safetyTimer = setTimeout(() => {
+      if (questions.length === 0) setQuestions(localQuestions);
+      setStep(1);
+      setIsLoading(false);
+    }, 8000);
+
     try {
       setIsLoading(true)
       let data
@@ -128,15 +141,15 @@ export default function ParentQuestionnairePage() {
         data = localQuestions
       }
       
-      if (!data || data.length === 0) {
-        data = localQuestions
-      }
-      
-      setQuestions(data)
+      const finalData = (Array.isArray(data) && data.length > 0) ? data : localQuestions;
+      setQuestions(finalData)
       setStep(1)
     } catch (err) {
-      addToast({ type: 'error', title: 'Error', message: 'Failed to load questions.' })
+      setQuestions(localQuestions);
+      setStep(1);
+      addToast({ type: 'warning', title: 'Network Issue', message: 'Loaded offline questions.' })
     } finally {
+      clearTimeout(safetyTimer);
       setIsLoading(false)
     }
   }
@@ -521,8 +534,11 @@ export default function ParentQuestionnairePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">First Name</label>
+                  <label htmlFor="firstName" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">First Name</label>
                   <input 
+                    id="firstName"
+                    name="firstName"
+                    autoComplete="given-name"
                     className="w-full bg-slate-900/50 border border-slate-700 px-6 py-4 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-white placeholder:text-slate-600"
                     placeholder="Enter first name"
                     value={formData.firstName}
@@ -530,8 +546,11 @@ export default function ParentQuestionnairePage() {
                   />
                </div>
                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Last Name</label>
+                  <label htmlFor="lastName" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Last Name</label>
                   <input 
+                    id="lastName"
+                    name="lastName"
+                    autoComplete="family-name"
                     className="w-full bg-slate-900/50 border border-slate-700 px-6 py-4 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-white placeholder:text-slate-600"
                     placeholder="Enter last name"
                     value={formData.lastName}
@@ -541,9 +560,11 @@ export default function ParentQuestionnairePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Date of Birth</label>
+               <div className="space-y-2">
+                <label htmlFor="dateOfBirth" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Date of Birth</label>
                 <input 
+                  id="dateOfBirth"
+                  name="dateOfBirth"
                   type="date"
                   className="w-full bg-slate-900/50 border border-slate-700 px-6 py-4 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-white"
                   value={formData.dateOfBirth}
@@ -571,8 +592,10 @@ export default function ParentQuestionnairePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Medical History / Concerns</label>
+              <label htmlFor="medicalHistory" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Medical History / Concerns</label>
               <textarea 
+                id="medicalHistory"
+                name="medicalHistory"
                 className="w-full bg-slate-900/50 border border-slate-700 px-6 py-4 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-white placeholder:text-slate-600 min-h-[120px]"
                 placeholder="Briefly describe any medical history or behavioral concerns..."
                 value={formData.medicalHistory}
