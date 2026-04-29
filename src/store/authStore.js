@@ -13,7 +13,13 @@ export const useAuthStore = create((set) => ({
 
   // Actions
   login: (authData) => {
-    const { token, ...userData } = authData;
+    const { token, ...data } = authData;
+    // Normalize user data to ensure 'name' field exists
+    const userData = {
+      ...data,
+      name: data.name || data.fullName || data.userName || 'User',
+    };
+    
     set({
       isAuthenticated: true,
       user: userData,
@@ -23,7 +29,7 @@ export const useAuthStore = create((set) => ({
       error: null,
     });
     // Persist to localStorage
-    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+    if (token) localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
     localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
   },
 
