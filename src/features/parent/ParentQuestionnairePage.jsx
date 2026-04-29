@@ -21,6 +21,7 @@ import { useAuthStore, useUIStore } from '@/store'
 import usePageTitle from '@/utils/usePageTitle'
 import { getChildren, createChild } from '@/api/children.api'
 import { startScreening, getScreeningQuestions, submitScreening } from '@/api/screening.api'
+import { screeningQuestions as localQuestions } from '@/features/screening/screeningInsights'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 
 export default function ParentQuestionnairePage() {
@@ -118,7 +119,18 @@ export default function ParentQuestionnairePage() {
   const fetchQuestions = async () => {
     try {
       setIsLoading(true)
-      const data = await getScreeningQuestions()
+      let data
+      try {
+        data = await getScreeningQuestions()
+      } catch (err) {
+        console.warn('API getScreeningQuestions failed, falling back to local questions:', err)
+        data = localQuestions
+      }
+      
+      if (!data || data.length === 0) {
+        data = localQuestions
+      }
+      
       setQuestions(data)
       setStep(1)
     } catch (err) {
@@ -171,14 +183,19 @@ export default function ParentQuestionnairePage() {
 
     try {
       setIsSubmitting(true)
-      // Send both variations just in case
-      await startScreening({ childId, child_id: childId })
+      // Attempt to start session but don't block if it fails (some backends don't require this step)
+      try {
+        await startScreening({ childId, child_id: childId })
+      } catch (e) {
+        console.warn('startScreening API failed or not supported, proceeding to fetch questions:', e)
+      }
+      
       await fetchQuestions()
     } catch (err) {
       addToast({ 
         type: 'error', 
         title: 'Error', 
-        message: getBackendErrorMessage(err) || 'Failed to start screening.' 
+        message: getBackendErrorMessage(err) || 'Failed to load screening questions.' 
       })
     } finally {
       setIsSubmitting(false)
