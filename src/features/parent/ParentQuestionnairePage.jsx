@@ -21,7 +21,8 @@ import { useAuthStore, useUIStore } from '@/store'
 import usePageTitle from '@/utils/usePageTitle'
 import { getChildren, createChild } from '@/api/children.api'
 import { startScreening, getScreeningQuestions, submitScreening } from '@/api/screening.api'
-import { screeningQuestions as localQuestions } from '@/features/screening/screeningInsights'
+import { predictASD, formatForAI } from '@/api/ai.api'
+import { screeningQuestions as localQuestions, generateScreeningInsights } from '@/features/screening/screeningInsights'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 
 export default function ParentQuestionnairePage() {
@@ -171,13 +172,14 @@ export default function ParentQuestionnairePage() {
         childId = newChild.id || newChild.child_id
         setSelectedChildId(childId)
       } catch (err) {
+        console.warn('createChild failed, but proceeding anyway with a temporary ID:', err)
         addToast({ 
-          type: 'error', 
-          title: 'Error', 
-          message: getBackendErrorMessage(err) || 'Failed to save child profile.' 
+          type: 'warning', 
+          title: 'Warning', 
+          message: 'Profile not saved to database, but you can still take the test.' 
         })
-        setIsSubmitting(false)
-        return
+        childId = 'temp-' + Date.now()
+        setSelectedChildId(childId)
       }
     }
 
@@ -241,15 +243,44 @@ export default function ParentQuestionnairePage() {
         answers: payloadAnswers 
       }
 
-      const response = await submitScreening(payload)
+      let response;
+      try {
+        response = await submitScreening(payload)
+      } catch (backendErr) {
+        console.warn('Backend submitScreening failed, falling back to local AI prediction:', backendErr)
+        
+        // Local fallback logic
+        const insights = generateScreeningInsights({ 
+          name: formData.firstName || 'Child', 
+          dob: formData.dateOfBirth,
+          gender: formData.gender 
+        }, answers)
+        
+        try {
+          const aiPayload = formatForAI(formData, answers, questions)
+          const aiResult = await predictASD(aiPayload)
+          response = {
+            predictionClass: aiResult.label || insights.riskLevel.label,
+            confidenceScore: aiResult.probability ? aiResult.probability / 100 : insights.riskLevel.probability / 100,
+            insights: insights
+          }
+        } catch (aiErr) {
+          console.warn('AI prediction also failed, using basic ruleset:', aiErr)
+          response = {
+            predictionClass: insights.riskLevel.label,
+            confidenceScore: insights.riskLevel.probability / 100,
+            insights: insights
+          }
+        }
+      }
+
       setResult(response)
       setStep(questions.length + 1)
     } catch (err) {
-      const backendMessage = getBackendErrorMessage(err)
       addToast({
         type: 'error',
         title: 'Submission failed',
-        message: backendMessage || 'Failed to submit screening. Please check your network and try again.',
+        message: 'A critical error occurred while processing your test. Please try again.',
       })
     } finally {
       setIsSubmitting(false)

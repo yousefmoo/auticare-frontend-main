@@ -1,6 +1,7 @@
-import { BarChart3, ClipboardList, RotateCcw, UserRound, Plus } from 'lucide-react'
+import { BarChart3, ClipboardList, RotateCcw, UserRound, Plus, ArrowRight } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store'
 import usePageTitle from '@/utils/usePageTitle'
 import { getParentDashboard } from '@/api/dashboard.api'
@@ -14,6 +15,7 @@ import { DashboardEmpty, DashboardSkeleton } from '@/components/shared/Dashboard
 export default function ParentHomeDashboard() {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [isAddingChild, setIsAddingChild] = useState(false)
   const [newChild, setNewChild] = useState({
     firstName: '',
@@ -227,7 +229,7 @@ export default function ParentHomeDashboard() {
                 )}
                 className="w-full btn-primary py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Start Screening
+                Register Child
               </button>
             </form>
           )}
@@ -250,6 +252,14 @@ export default function ParentHomeDashboard() {
               <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{dashboardData?.completedTests || 0} Completed</p>
             </div>
           </div>
+          
+          <button 
+            onClick={() => navigate('/parent/questionnaire')}
+            className="mt-6 w-full flex items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-bold text-white shadow-lg transition-all hover:bg-orange-600 hover:-translate-y-1"
+          >
+            Start New Screening
+            <ArrowRight className="h-5 w-5" />
+          </button>
         </section>
 
         <section className="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
