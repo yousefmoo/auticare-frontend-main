@@ -1,0 +1,292 @@
+export const sessionCatalog = [
+  {
+    id: 'sess-101',
+    child: 'عمر أحمد',
+    sessionType: 'جلسة علاج سلوكي',
+    doctorName: 'د. أحمد مصطفى',
+    therapistName: 'أماني إبراهيم',
+    specialization: 'أخصائية علاج سلوكي',
+    dateLabel: '11 أبريل 2026',
+    timeLabel: '09:00 ص',
+    status: 'مؤكدة',
+    mode: 'Zoom',
+    meetingLabel: 'Join Zoom',
+    meetingLink: 'https://zoom.us/j/123456',
+    notesLabel: 'ملاحظة قبل الجلسة',
+    notesSummary: 'راجعي بطاقات الصور المفضلة مع الطفل قبل الجلسة وجهزي ملاحظة سريعة عن روتين الصباح.',
+    lastSummary: 'استجاب عمر بشكل أفضل للتقليد البصري وحافظ على التواصل البصري لفترة أطول.',
+    assignedTo: ['parent', 'doctor', 'therapist'],
+    homeRoleLabel: {
+      parent: 'الجلسة القادمة',
+      doctor: 'جلسة المريض القادمة',
+      therapist: 'الجلسة المكلفة بها',
+    },
+  },
+  {
+    id: 'sess-102',
+    child: 'يوسف محمد',
+    sessionType: 'مراجعة طبية',
+    doctorName: 'د. محمود خالد',
+    therapistName: 'سارة أحمد',
+    specialization: 'أخصائية نطق وتخاطب',
+    dateLabel: '12 أبريل 2026',
+    timeLabel: '11:00 ص',
+    status: 'قادمة',
+    mode: 'Google Meet',
+    meetingLabel: 'Join Google Meet',
+    meetingLink: 'https://meet.google.com/abc-def',
+    notesLabel: 'ملاحظة طبية',
+    notesSummary: 'مراجعة ملخص التقدم قبل اعتماد التعديلات على الخطة العلاجية.',
+    lastSummary: 'أظهر يوسف تحسنا واضحا في الاستجابة اللفظية واستخدام كلمات الهدف بشكل مستقل.',
+    assignedTo: ['parent', 'doctor'],
+    homeRoleLabel: {
+      parent: 'المراجعة القادمة',
+      doctor: 'جلسة المريض القادمة',
+      therapist: 'الجلسة المكلفة بها',
+    },
+  },
+  {
+    id: 'sess-103',
+    child: 'عمر حسن',
+    sessionType: 'جلسة علاج وظيفي',
+    doctorName: 'د. أحمد مصطفى',
+    therapistName: 'سارة أحمد',
+    specialization: 'أخصائية علاج وظيفي',
+    dateLabel: '13 أبريل 2026',
+    timeLabel: '01:30 م',
+    status: 'بانتظار التأكيد',
+    mode: 'Zoom',
+    meetingLabel: 'Join Zoom',
+    meetingLink: 'https://zoom.us/j/123456',
+    notesLabel: 'خطة الجلسة',
+    notesSummary: 'تأكيد الأدوات الحسية المطلوبة وإرسال تحديث مختصر للأسرة قبل الموعد.',
+    lastSummary: 'تحسنت قدرة عمر حسن على الانتقال بين الأنشطة عند استخدام جدول بصري ثابت.',
+    assignedTo: ['doctor', 'therapist'],
+    homeRoleLabel: {
+      parent: 'الجلسة القادمة',
+      doctor: 'جلسة المريض القادمة',
+      therapist: 'الجلسة المكلفة بها',
+    },
+  },
+]
+
+export const messageThreads = [
+  {
+    id: 'doctor-thread',
+    userId: 'doctor-thread',
+    participantName: 'د. أحمد مصطفى',
+    participantRole: 'Doctor',
+    participantSubtitle: 'استشاري نمو وسلوك',
+    avatar: 'أم',
+    lastMessage: 'راجعت نتيجة الفحص وأضفت ملاحظة داخل التقرير.',
+    time: '09:24',
+    unread: 1,
+    typing: false,
+    participants: ['parent', 'doctor'],
+    messages: [
+      { id: 'm-1', sender: 'doctor', text: 'صباح الخير، راجعت نتيجة فحص عمر أحمد هذا الصباح.', time: '09:10' },
+      { id: 'm-2', sender: 'parent', text: 'شكرا لك، هل يمكننا تنسيق موعد المراجعة القادمة؟', time: '09:16' },
+      { id: 'm-3', sender: 'doctor', text: 'راجعت نتيجة الفحص وأضفت ملاحظة داخل التقرير.', time: '09:24' },
+    ],
+  },
+  {
+    id: 'therapist-thread',
+    userId: 'therapist-thread',
+    participantName: 'أماني إبراهيم',
+    participantRole: 'Therapist',
+    participantSubtitle: 'أخصائية علاج سلوكي',
+    avatar: 'أإ',
+    lastMessage: 'لنكرر الروتين البصري القصير بعد الغداء اليوم.',
+    time: 'أمس',
+    unread: 0,
+    typing: true,
+    participants: ['parent', 'therapist', 'doctor'],
+    messages: [
+      { id: 'm-4', sender: 'therapist', text: 'استجاب عمر أحمد بشكل جيد جدا في لعبة المطابقة اليوم.', time: '16:02' },
+      { id: 'm-5', sender: 'parent', text: 'ممتاز، ما النشاط المنزلي الذي نكرره هذا المساء؟', time: '16:07' },
+      { id: 'm-6', sender: 'therapist', text: 'لنكرر الروتين البصري القصير بعد الغداء اليوم.', time: '16:11' },
+    ],
+  },
+  {
+    id: 'parent-thread',
+    userId: 'parent-thread',
+    participantName: 'محمد أحمد',
+    participantRole: 'Parent',
+    participantSubtitle: 'ولي أمر',
+    avatar: 'مح',
+    lastMessage: 'من فضلكم أرسلوا لي الملخص النهائي بعد انتهاء الجلسة.',
+    time: '08:40',
+    unread: 2,
+    typing: false,
+    participants: ['doctor', 'therapist', 'parent'],
+    messages: [
+      { id: 'm-7', sender: 'parent', text: 'من فضلكم أرسلوا لي الملخص النهائي بعد انتهاء الجلسة.', time: '08:40' },
+    ],
+  },
+]
+
+export const specialistDirectory = [
+  {
+    id: 'sp-1',
+    name: 'د. أحمد مصطفى',
+    type: 'Doctor',
+    specialization: 'طب نمو وسلوك الأطفال',
+    experience: '10 سنوات',
+    availability: 'متاح هذا الأسبوع',
+    avatar: 'أم',
+    focus: 'متابعة التطور، التخطيط العلاجي، والتنسيق بين الأسرة والفريق.',
+  },
+  {
+    id: 'sp-2',
+    name: 'د. محمود خالد',
+    type: 'Doctor',
+    specialization: 'أعصاب أطفال',
+    experience: '12 سنة',
+    availability: 'مواعيد متاحة يوم الثلاثاء',
+    avatar: 'مخ',
+    focus: 'المراجعات الطبية، تقييم التقدم، ودعم قرارات الخطة العلاجية.',
+  },
+  {
+    id: 'sp-3',
+    name: 'سارة أحمد',
+    type: 'Therapist',
+    specialization: 'نطق وتخاطب',
+    experience: '6 سنوات',
+    availability: 'أقرب موعد غدا',
+    avatar: 'سأ',
+    focus: 'تحسين اللغة التعبيرية، الانتباه المشترك، والتواصل الوظيفي.',
+  },
+  {
+    id: 'sp-4',
+    name: 'أماني إبراهيم',
+    type: 'Therapist',
+    specialization: 'علاج سلوكي',
+    experience: '7 سنوات',
+    availability: 'متاحة يوم الاثنين',
+    avatar: 'أإ',
+    focus: 'بناء الروتين، التدريب السلوكي، وإرشاد الأسرة في المنزل.',
+  },
+]
+
+export const reportsOverview = {
+  summary: [
+    { id: 'sum-1', label: 'تقدم الطفل', value: '78%', tone: 'sky' },
+    { id: 'sum-2', label: 'نتيجة الفحص', value: 'متوسط', tone: 'amber' },
+    { id: 'sum-3', label: 'الجلسات المكتملة', value: '24', tone: 'emerald' },
+    { id: 'sum-4', label: 'استقرار السلوك', value: '+12%', tone: 'violet' },
+  ],
+  cards: [
+    {
+      id: 'rep-1',
+      title: 'تقرير تقدم الطفل',
+      description: 'ملخص تطور التواصل والانتباه والالتزام بالروتين خلال آخر دورة علاجية.',
+      metric: 'دقة التواصل 82%',
+      accent: 'sky',
+    },
+    {
+      id: 'rep-2',
+      title: 'نتيجة الفحص',
+      description: 'آخر نتيجة فحص مع توصية واضحة للمتابعة القادمة.',
+      metric: 'النتيجة 14/20 وتحتاج متابعة',
+      accent: 'amber',
+    },
+    {
+      id: 'rep-3',
+      title: 'ملخص الجلسات',
+      description: 'حضور الجلسات، اكتمال الملاحظات، وسير الخطة الأسبوعية.',
+      metric: '6 جلسات هذا الشهر',
+      accent: 'emerald',
+    },
+    {
+      id: 'rep-4',
+      title: 'تقدم العلاج',
+      description: 'متابعة أهداف العلاج وتفاعل الأسرة مع المهام المنزلية.',
+      metric: '3 من 4 أهداف على المسار',
+      accent: 'violet',
+    },
+  ],
+  progressTrend: [
+    { name: 'الأسبوع 1', communication: 48, engagement: 56, behavior: 52 },
+    { name: 'الأسبوع 2', communication: 59, engagement: 61, behavior: 57 },
+    { name: 'الأسبوع 3', communication: 68, engagement: 70, behavior: 65 },
+    { name: 'الأسبوع 4', communication: 78, engagement: 74, behavior: 71 },
+  ],
+  behaviorStats: [
+    { name: 'انتقالات هادئة', value: 32 },
+    { name: 'روتين بمساعدة', value: 24 },
+    { name: 'استجابات مستقلة', value: 19 },
+    { name: 'نوبات انزعاج', value: 7 },
+  ],
+  sessionMix: [
+    { name: 'جلسات علاجية', value: 14 },
+    { name: 'مراجعات طبية', value: 6 },
+    { name: 'إرشاد أسري', value: 4 },
+  ],
+}
+
+export const sessionNotesArabic = [
+  {
+    id: 'note-1',
+    child: 'عمر أحمد',
+    date: '10 أبريل 2026',
+    sessionType: 'جلسة علاج سلوكي',
+    summary: 'تحسن في الاستجابة للمثيرات البصرية والقدرة على انتظار الدور لفترة أطول.',
+    nextStep: 'تكرار لعبة التقليد البصري مرتين يوميا في المنزل.',
+  },
+  {
+    id: 'note-2',
+    child: 'يوسف محمد',
+    date: '9 أبريل 2026',
+    sessionType: 'جلسة نطق',
+    summary: 'أنتج خمس كلمات هدف بشكل مستقل مع تحسن واضح في الانتباه.',
+    nextStep: 'الانتقال إلى جمل قصيرة من كلمتين مع دعم بصري.',
+  },
+]
+
+export const homeNotesArabic = [
+  {
+    id: 'home-1',
+    date: '10 أبريل 2026',
+    title: 'ملاحظة منزلية صباحية',
+    note: 'استجاب عمر أحمد بشكل جيد للروتين الصباحي وكان أكثر هدوءا قبل الجلسة.',
+  },
+  {
+    id: 'home-2',
+    date: '9 أبريل 2026',
+    title: 'ملاحظة بعد الغداء',
+    note: 'كرر يوسف محمد نشاط المطابقة مرتين وطلب الصور بنفسه.',
+  },
+]
+
+export const retestOverview = {
+  schedule: [
+    { label: 'آخر فحص', value: '2 أبريل 2026' },
+    { label: 'الفحص القادم', value: '16 أبريل 2026' },
+    { label: 'التكرار الموصى به', value: 'كل أسبوعين أو عند تغير السلوك' },
+  ],
+  summaryTitle: 'ملخص آخر فحص',
+  summaryRisk: 'مخاطر متوسطة',
+  summaryScore: '14 من 20 مؤشرا',
+  guidance: [
+    'إعادة الفحص بعد أي تغير واضح في الروتين أو الاستجابة العلاجية.',
+    'استخدام نتيجة الفحص لتحديث الصفحة الرئيسية والتقارير قبل الزيارة القادمة.',
+  ],
+}
+
+export const roleSidebarSummary = {
+  doctor: {
+    eyebrow: 'Clinical workspace',
+    title: 'Doctor dashboard',
+    subtitle: 'Reviews, reports, and family coordination',
+  },
+  therapist: {
+    eyebrow: 'Care delivery',
+    title: 'Therapist dashboard',
+    subtitle: 'Sessions, notes, and treatment follow-through',
+  },
+  parent: {
+    eyebrow: 'Family space',
+    title: 'Parent dashboard',
+    subtitle: 'Sessions, reports, and messaging in one place',
+  },
+}
