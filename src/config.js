@@ -3,11 +3,27 @@
  * Environment variables and application constants
  */
 
-export const config = {
-  // API base URL - Set this to your Railway/Production URL in your .env or deployment settings
-  // Example: https://your-backend.up.railway.app/api
+/**
+ * Sanitize the API base URL:
+ * - Strip any trailing slash
+ * - Strip any trailing /api suffix
+ * This ensures the URL works whether the env var was set as
+ * "https://auticare-production.up.railway.app" OR
+ * "https://auticare-production.up.railway.app/api"
+ */
+function sanitizeBaseUrl(url) {
+  // Remove trailing slash first
+  let sanitized = url.replace(/\/$/, '')
+  // Remove trailing /api (case-insensitive) so endpoints like /api/auth/login don't double up
+  sanitized = sanitized.replace(/\/api$/i, '')
+  return sanitized
+}
 
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'https://auticare-production.up.railway.app',
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://auticare-production.up.railway.app'
+
+export const config = {
+  // API base URL — always sanitized to strip trailing /api or /
+  apiBaseUrl: sanitizeBaseUrl(rawBaseUrl),
 
   // AI API URL (HuggingFace space)
   aiApiUrl: import.meta.env.VITE_AI_API_URL || 'https://moaz2545-gradpro.hf.space/predict/all',
