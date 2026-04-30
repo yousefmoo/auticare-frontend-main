@@ -45,7 +45,7 @@ export default function ParentQuestionnairePage() {
     firstName: '',
     lastName: '',
     dateOfBirth: '',
-    gender: 'boy',
+    gender: 'Male', // Backend expects "Male" or "Female"
     medicalHistory: '',
     jaundice: '',
     familyHistory: '',
@@ -66,6 +66,14 @@ export default function ParentQuestionnairePage() {
   const getBackendErrorMessage = (err) => {
     const data = err?.response?.data
     if (!data) return null
+    
+    // Priority 1: Specific validation errors from backend
+    if (data.errors && typeof data.errors === 'object') {
+      const errorValues = Object.values(data.errors).flat()
+      if (errorValues.length > 0) return errorValues[0]
+    }
+    
+    // Priority 2: Standard message fields
     if (typeof data === 'string') return data
     if (typeof data?.message === 'string') return data.message
     if (typeof data?.detail === 'string') return data.detail
@@ -163,46 +171,61 @@ export default function ParentQuestionnairePage() {
       // Create new child
       try {
         setIsSubmitting(true)
-        // Ensure data matches backend expectations (trying common variations)
+        
+        // Calculate age from dateOfBirth
+        const birthDate = new Date(formData.dateOfBirth)
+        const today = new Date()
+        let age = today.getFullYear() - birthDate.getFullYear()
+        const m = today.getMonth() - birthDate.getMonth()
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--
+        }
+
         const payload = {
           firstName: formData.firstName,
           lastName: formData.lastName,
           dateOfBirth: formData.dateOfBirth,
-          gender: formData.gender === 'boy' ? 'male' : 'female',
+          age: Number(age),
+          gender: formData.gender, // Already normalized to "Male" or "Female"
           medicalHistory: formData.medicalHistory,
           jaundice: formData.jaundice === 'yes',
-          familyHistory: formData.familyHistory === 'yes',
-          // Snake case variations just in case
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          date_of_birth: formData.dateOfBirth,
-          medical_history: formData.medicalHistory,
-          jaundice_history: formData.jaundice === 'yes',
-          family_history: formData.familyHistory === 'yes'
+          familyHistory: formData.familyHistory === 'yes'
         }
 
+        console.log('Creating child with payload:', payload)
         const newChild = await createChild(payload)
         childId = newChild.id || newChild.child_id
         setSelectedChildId(childId)
       } catch (err) {
-        console.warn('createChild failed, but proceeding anyway with a temporary ID:', err)
+        const errorMessage = getBackendErrorMessage(err) || 'Failed to save child profile.'
         addToast({ 
-          type: 'warning', 
-          title: 'Warning', 
-          message: 'Profile not saved to database, but you can still take the test.' 
+          type: 'error', 
+          title: 'Registration Failed', 
+          message: errorMessage
         })
-        childId = 'temp-' + Date.now()
-        setSelectedChildId(childId)
+        setIsSubmitting(false)
+        return // CRITICAL: Stop execution if creation fails
       }
     }
 
     try {
       setIsSubmitting(true)
-      // Attempt to start session but don't block if it fails (some backends don't require this step)
+      const numericChildId = Number(childId)
+      
+      // Backend expects: { request: { childId: number } }
+      const startPayload = { 
+        request: { 
+          childId: numericChildId 
+        } 
+      }
+      
+      console.log('Starting screening with payload:', startPayload)
       try {
-        await startScreening({ childId, child_id: childId })
+        await startScreening(startPayload)
       } catch (e) {
-        console.warn('startScreening API failed or not supported, proceeding to fetch questions:', e)
+        console.warn('startScreening API failed, checking if we can proceed:', e)
+        // If it's a 400 with "request field is required", we failed the contract. 
+        // If it's other error, maybe we can proceed to questions.
       }
       
       await fetchQuestions()
@@ -251,10 +274,13 @@ export default function ParentQuestionnairePage() {
       }
 
       const payload = { 
-        childId, 
-        child_id: childId,
-        answers: payloadAnswers 
+        request: {
+          childId: Number(selectedChildId),
+          answers: payloadAnswers 
+        }
       }
+
+      console.log('Submitting answers with payload:', payload)
 
       let response;
       try {
@@ -501,30 +527,30 @@ export default function ParentQuestionnairePage() {
           <div className="glass-card rounded-[2.5rem] p-8 sm:p-12 space-y-8">
             <div className="grid grid-cols-2 gap-6">
               <button 
-                onClick={() => setFormData({...formData, gender: 'boy'})}
+                onClick={() => setFormData({...formData, gender: 'Male'})}
                 className={`p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col items-center gap-4 ${
-                  formData.gender === 'boy' ? 
+                  formData.gender === 'Male' ? 
                   'border-orange-500 bg-orange-500/10 shadow-[0_0_20px_rgba(249,115,22,0.15)]' : 
                   'border-slate-700 bg-slate-800/50 hover:bg-slate-800'
                 }`}
               >
                 <div className={`h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                  formData.gender === 'boy' ? 'bg-orange-500 scale-110' : 'bg-slate-700'
+                  formData.gender === 'Male' ? 'bg-orange-500 scale-110' : 'bg-slate-700'
                 }`}>
                   <User className="h-8 w-8 text-white" />
                 </div>
                 <span className="font-bold text-xl tracking-wide">Boy</span>
               </button>
               <button 
-                onClick={() => setFormData({...formData, gender: 'girl'})}
+                onClick={() => setFormData({...formData, gender: 'Female'})}
                 className={`p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col items-center gap-4 ${
-                  formData.gender === 'girl' ? 
+                  formData.gender === 'Female' ? 
                   'border-orange-500 bg-orange-500/10 shadow-[0_0_20px_rgba(249,115,22,0.15)]' : 
                   'border-slate-700 bg-slate-800/50 hover:bg-slate-800'
                 }`}
               >
                 <div className={`h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                  formData.gender === 'girl' ? 'bg-orange-500 scale-110' : 'bg-slate-700'
+                  formData.gender === 'Female' ? 'bg-orange-500 scale-110' : 'bg-slate-700'
                 }`}>
                   <User className="h-8 w-8 text-white" />
                 </div>
