@@ -47,6 +47,7 @@ const navigationConfig = {
     { name: 'Sessions', path: '/parent/sessions', icon: PlayCircle },
     { name: 'Specialists', path: '/parent/specialists', icon: ShieldPlus },
     { name: 'Screening Results', path: '/parent/screening-results', icon: TrendingUp },
+    { name: 'Re-Test', path: '/parent/retest', icon: RotateCcw },
     { name: 'Profile', path: '/parent/profile', icon: Users },
   ],
 }

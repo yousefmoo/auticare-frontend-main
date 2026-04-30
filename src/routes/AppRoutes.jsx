@@ -34,6 +34,7 @@ import ProgressStatistics from "@/features/parent/ProgressStatistics";
 import ParentResourcesPage from "@/features/parent/ParentResourcesPage";
 import TreatmentPlanPage from "@/features/parent/TreatmentPlanPage";
 import ParentQuestionnairePage from "@/features/parent/ParentQuestionnairePage";
+import ParentRetestPage from "@/features/parent/ParentRetestPage";
 import NotFound from "@/features/shared/NotFound";
 import Unauthorized from "@/features/shared/Unauthorized";
 import RoleSettingsPage from "@/features/shared/RoleSettingsPage";
@@ -131,6 +132,7 @@ const router = createBrowserRouter([
       { path: "weekly-plan", element: <ParentWeeklyPlanPro /> },
       { path: "treatment-plan", element: <TreatmentPlanPage /> },
       { path: "questionnaire", element: <ParentQuestionnairePage /> },
+      { path: "retest", element: <ParentRetestPage /> },
       { path: "sessions", element: <ParentSessionsDashboard /> },
       { path: "sessions/live", element: <SessionCallRoomPage /> },
       { path: "progress", element: <ProgressStatistics /> },

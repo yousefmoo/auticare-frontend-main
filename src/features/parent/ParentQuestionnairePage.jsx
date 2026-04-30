@@ -48,6 +48,10 @@ export default function ParentQuestionnairePage() {
     consent: false,
     picture: null,
   })
+
+  // Local-only pre-screening questions — NOT sent to /api/children
+  const [jaundiceHistory, setJaundiceHistory] = useState(null) // 'yes' | 'no'
+  const [familyHistoryAutism, setFamilyHistoryAutism] = useState(null) // 'yes' | 'no'
   
   const [answers, setAnswers] = useState({})
   const [error, setError] = useState('')
@@ -287,10 +291,12 @@ export default function ParentQuestionnairePage() {
         formData.dateOfBirth !== '' &&
         formData.gender !== '' &&
         formData.medicalHistory.trim() !== '' &&
+        jaundiceHistory !== null &&
+        familyHistoryAutism !== null &&
         formData.consent;
 
       if (!isFormValid) {
-        setError('Please fill all required fields and agree to the consent.')
+        setError('Please fill all required fields, answer both questions, and check the consent box.')
         return
       }
       handleStartScreening()
@@ -575,8 +581,64 @@ export default function ParentQuestionnairePage() {
               />
             </div>
 
+            {/* --- Yes/No Pre-screening Questions (local state only, not sent to API) --- */}
+            <div className="space-y-6">
+              {/* Jaundice Question */}
+              <div className="p-5 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-3">
+                <p className="text-sm font-semibold text-slate-200">Have your child ever had jaundice before? <span className="text-orange-400">*</span></p>
+                <div className="flex gap-4">
+                  {['yes', 'no'].map((val) => (
+                    <label key={val} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="jaundiceHistory"
+                        value={val}
+                        checked={jaundiceHistory === val}
+                        onChange={() => setJaundiceHistory(val)}
+                        className="sr-only"
+                      />
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        jaundiceHistory === val ? 'border-orange-500 bg-orange-500' : 'border-slate-600 group-hover:border-orange-400'
+                      }`}>
+                        {jaundiceHistory === val && <div className="h-2 w-2 rounded-full bg-white" />}
+                      </div>
+                      <span className={`text-sm capitalize ${
+                        jaundiceHistory === val ? 'text-orange-400 font-semibold' : 'text-slate-400'
+                      }`}>{val === 'yes' ? 'Yes' : 'No'}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
+              {/* Family History of Autism Question */}
+              <div className="p-5 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-3">
+                <p className="text-sm font-semibold text-slate-200">Is there a family history of autism? <span className="text-orange-400">*</span></p>
+                <div className="flex gap-4">
+                  {['yes', 'no'].map((val) => (
+                    <label key={val} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="familyHistoryAutism"
+                        value={val}
+                        checked={familyHistoryAutism === val}
+                        onChange={() => setFamilyHistoryAutism(val)}
+                        className="sr-only"
+                      />
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        familyHistoryAutism === val ? 'border-orange-500 bg-orange-500' : 'border-slate-600 group-hover:border-orange-400'
+                      }`}>
+                        {familyHistoryAutism === val && <div className="h-2 w-2 rounded-full bg-white" />}
+                      </div>
+                      <span className={`text-sm capitalize ${
+                        familyHistoryAutism === val ? 'text-orange-400 font-semibold' : 'text-slate-400'
+                      }`}>{val === 'yes' ? 'Yes' : 'No'}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
 
+            {/* Consent Checkbox */}
             <div className="p-6 bg-orange-500/5 rounded-3xl border border-orange-500/20">
               <label className="flex items-start gap-4 cursor-pointer group">
                 <div className="relative mt-1">
@@ -593,7 +655,7 @@ export default function ParentQuestionnairePage() {
                   </div>
                 </div>
                 <span className="text-slate-300 text-sm leading-relaxed">
-                  I confirm that I agree to start the screening test using my child&apos;s data and understand this is not a medical diagnosis.
+                  I agree to start the test using my child&apos;s data.
                 </span>
               </label>
             </div>
@@ -614,11 +676,20 @@ export default function ParentQuestionnairePage() {
               </button>
               <button
                 onClick={handleNext}
-                disabled={isSubmitting}
-                className="flex-1 py-5 rounded-2xl bg-orange-500 text-white font-bold text-xl shadow-[0_10px_30px_rgba(249,115,22,0.4)] hover:bg-orange-600 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                disabled={
+                  isSubmitting ||
+                  !formData.firstName.trim() ||
+                  !formData.lastName.trim() ||
+                  !formData.dateOfBirth ||
+                  !formData.medicalHistory.trim() ||
+                  jaundiceHistory === null ||
+                  familyHistoryAutism === null ||
+                  !formData.consent
+                }
+                className="flex-1 py-5 rounded-2xl bg-orange-500 text-white font-bold text-xl shadow-[0_10px_30px_rgba(249,115,22,0.4)] hover:bg-orange-600 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {isSubmitting ? <LoadingSpinner size="sm" /> : null}
-                <span>{isSubmitting ? 'Registering...' : 'Start Screening'}</span>
+                <span>{isSubmitting ? 'Registering...' : 'Start Exam'}</span>
                 {!isSubmitting && <ArrowRight className="h-6 w-6" />}
               </button>
             </div>
