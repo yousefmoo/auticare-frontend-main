@@ -168,6 +168,7 @@ export default function Signup() {
       // Log in using the response from registration
       if (signupResponse && signupResponse.token) {
         login(signupResponse);
+        setSubmitMessage('Account created successfully! Redirecting...');
         
         // Redirect based on role
         setTimeout(() => {
@@ -187,7 +188,8 @@ export default function Signup() {
         }, 1500);
       } else {
         // Fallback if token is missing (should not happen with AuthResponse)
-        navigate('/login');
+        setSubmitMessage('Account created! Please log in.');
+        setTimeout(() => navigate('/login'), 1500);
       }
     } catch (error) {
       console.error('Signup error:', error);
@@ -202,7 +204,7 @@ export default function Signup() {
         if (errorData.errors && typeof errorData.errors === 'object') {
           errorMsg = Object.values(errorData.errors).flat().join(' ');
         } else {
-          errorMsg = errorData.detail || errorData.title || errorData.message || errorMsg;
+          errorMsg = errorData.detail || errorData.error || errorData.title || errorData.message || errorMsg;
         }
       } else {
         errorMsg = error.message || errorMsg;
@@ -215,6 +217,7 @@ export default function Signup() {
       });
     }
   };
+
 
   const renderRoleFields = () => {
     if (selectedRole === USER_ROLES.DOCTOR) {

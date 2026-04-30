@@ -33,14 +33,21 @@ apiClient.interceptors.response.use(
       const { status } = error.response
       
       switch (status) {
-        case 401:
+        case 401: {
           // Unauthorized - clear auth and redirect to login
-          localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
-          localStorage.removeItem(STORAGE_KEYS.USER_DATA)
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login'
+          // Skip redirect if the failing request was itself an auth endpoint
+          // (e.g. wrong credentials on login — let the caller handle the error)
+          const requestUrl = error.config?.url || ''
+          const isAuthEndpoint = requestUrl.includes('/api/auth/login') || requestUrl.includes('/api/auth/register')
+          if (!isAuthEndpoint) {
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+            localStorage.removeItem(STORAGE_KEYS.USER_DATA)
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login'
+            }
           }
           break
+        }
           
         case 403:
           console.error('Forbidden access')
