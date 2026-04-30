@@ -23,8 +23,6 @@ export default function ParentHomeDashboard() {
     dateOfBirth: '',
     gender: 'Male',
     medicalHistory: '',
-    jaundice: '',
-    familyHistory: '',
     consent: false,
     picture: null,
   })
@@ -34,7 +32,14 @@ export default function ParentHomeDashboard() {
   const handleAddChild = async (e) => {
     e.preventDefault()
     try {
-      await createChild(newChild)
+      const payload = {
+        firstName: newChild.firstName,
+        lastName: newChild.lastName,
+        dateOfBirth: new Date(newChild.dateOfBirth).toISOString(),
+        gender: newChild.gender,
+        medicalHistory: newChild.medicalHistory
+      }
+      await createChild(payload)
       queryClient.invalidateQueries(['children'])
       setIsAddingChild(false)
       setNewChild({ 
@@ -43,8 +48,6 @@ export default function ParentHomeDashboard() {
         dateOfBirth: '', 
         gender: 'Male', 
         medicalHistory: '',
-        jaundice: '',
-        familyHistory: '',
         consent: false,
         picture: null
       })
@@ -73,7 +76,7 @@ export default function ParentHomeDashboard() {
     queryFn: getNotes,
   })
 
-  const selectedChild = children[0] || screeningResult.profile; // Fallback to screening profile if no real child found yet
+  const selectedChild = children[0] || null;
 
   const nextSession = upcomingSessions[0]
 
@@ -181,30 +184,6 @@ export default function ParentHomeDashboard() {
                 required
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 bg-[var(--card)] rounded-2xl border border-emerald-50">
-                  <p className="text-xs font-semibold text-[var(--muted)] mb-2">Jaundice History?</p>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 text-xs cursor-pointer">
-                      <input type="radio" name="jaundice_dash" checked={newChild.jaundice === 'yes'} onChange={() => setNewChild({...newChild, jaundice: 'yes'})} /> Yes
-                    </label>
-                    <label className="flex items-center gap-2 text-xs cursor-pointer">
-                      <input type="radio" name="jaundice_dash" checked={newChild.jaundice === 'no'} onChange={() => setNewChild({...newChild, jaundice: 'no'})} /> No
-                    </label>
-                  </div>
-                </div>
-                <div className="p-3 bg-[var(--card)] rounded-2xl border border-emerald-50">
-                  <p className="text-xs font-semibold text-[var(--muted)] mb-2">Autism Family History?</p>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 text-xs cursor-pointer">
-                      <input type="radio" name="family_dash" checked={newChild.familyHistory === 'yes'} onChange={() => setNewChild({...newChild, familyHistory: 'yes'})} /> Yes
-                    </label>
-                    <label className="flex items-center gap-2 text-xs cursor-pointer">
-                      <input type="radio" name="family_dash" checked={newChild.familyHistory === 'no'} onChange={() => setNewChild({...newChild, familyHistory: 'no'})} /> No
-                    </label>
-                  </div>
-                </div>
-              </div>
 
               <div className="flex items-center justify-between p-3 bg-[var(--card)] rounded-2xl border border-emerald-50">
                 <span className="text-xs text-[var(--muted)]">Child Photo (Optional)</span>
@@ -228,8 +207,6 @@ export default function ParentHomeDashboard() {
                   newChild.lastName.trim() && 
                   newChild.dateOfBirth && 
                   newChild.medicalHistory.trim() && 
-                  newChild.jaundice && 
-                  newChild.familyHistory && 
                   newChild.consent
                 )}
                 className="w-full btn-primary py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -242,15 +219,21 @@ export default function ParentHomeDashboard() {
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Child</p>
-              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{selectedChild.fullName || selectedChild.name}</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">
+                {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}` : 'No child registered'}
+              </p>
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Age</p>
-              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{selectedChild?.age || 'N/A'} years</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--ink)]">
+                {selectedChild?.ageInYears ? `${selectedChild.ageInYears} years` : 'N/A'}
+              </p>
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Gender</p>
-              <p className="mt-2 text-lg font-semibold capitalize text-[var(--ink)]">{selectedChild.gender || 'Not specified'}</p>
+              <p className="mt-2 text-lg font-semibold capitalize text-[var(--ink)]">
+                {selectedChild?.gender || 'Not specified'}
+              </p>
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Screenings</p>

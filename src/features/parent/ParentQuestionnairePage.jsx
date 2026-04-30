@@ -21,8 +21,6 @@ import { useAuthStore, useUIStore } from '@/store'
 import usePageTitle from '@/utils/usePageTitle'
 import { getChildren, createChild } from '@/api/children.api'
 import { startScreening, getScreeningQuestions, submitScreening } from '@/api/screening.api'
-import { predictASD, formatForAI } from '@/api/ai.api'
-import { screeningQuestions as localQuestions, generateScreeningInsights } from '@/features/screening/screeningInsights'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 
 export default function ParentQuestionnairePage() {
@@ -47,8 +45,6 @@ export default function ParentQuestionnairePage() {
     dateOfBirth: '',
     gender: 'Male', // Backend expects "Male" or "Female"
     medicalHistory: '',
-    jaundice: '',
-    familyHistory: '',
     consent: false,
     picture: null,
   })
@@ -81,23 +77,10 @@ export default function ParentQuestionnairePage() {
     return data?.title || data?.message || null
   }
 
-  const getAnswerValueForQuestion = (question, selectedOption) => {
+  const getAnswerValueForQuestion = (selectedOption) => {
     if (selectedOption === null || selectedOption === undefined) return null
 
-    // 1. If we have explicit risk answers, use them (returns 1 for risk, 0 for normal)
-    if (Array.isArray(question?.riskAnswers)) {
-      const isRisk = question.riskAnswers.some(risk => 
-        String(risk).toLowerCase().trim() === String(selectedOption).toLowerCase().trim()
-      )
-      return isRisk ? 1 : 0
-    }
-
-    // 2. Try to get the index from options first
-    const options = Array.isArray(question?.options) ? question.options : []
-    const index = options.findIndex((opt) => String(opt).toLowerCase().trim() === String(selectedOption).toLowerCase().trim())
-    if (index >= 0) return index
-
-    // 3. Fallback to boolean-like numbers
+    // Backend expects 1 for Yes, 0 for No
     const normalizedSelected = String(selectedOption).trim().toLowerCase()
     if (normalizedSelected === 'yes' || normalizedSelected === 'y' || normalizedSelected === 'true') return 1
     if (normalizedSelected === 'no' || normalizedSelected === 'n' || normalizedSelected === 'false') return 0
@@ -132,32 +115,31 @@ export default function ParentQuestionnairePage() {
   }, [])
 
   const fetchQuestions = async () => {
-    // Safety timeout: stop loading after 8 seconds
-    const safetyTimer = setTimeout(() => {
-      if (questions.length === 0) setQuestions(localQuestions);
-      setStep(1);
-      setIsLoading(false);
-    }, 8000);
-
     try {
       setIsLoading(true)
-      let data
-      try {
-        data = await getScreeningQuestions()
-      } catch (err) {
-        console.warn('API getScreeningQuestions failed, falling back to local questions:', err)
-        data = localQuestions
-      }
+      const data = await getScreeningQuestions()
       
-      const finalData = (Array.isArray(data) && data.length > 0) ? data : localQuestions;
-      setQuestions(finalData)
-      setStep(1)
+      if (Array.isArray(data) && data.length > 0) {
+        // Backend doesn't provide options, inject standard Yes/No
+        const questionsWithOptions = data.map(q => ({
+          ...q,
+          text: q.questionText,
+          options: ['Yes', 'No']
+        }))
+        setQuestions(questionsWithOptions)
+        setStep(1)
+      } else {
+        throw new Error("No questions returned from backend")
+      }
     } catch (err) {
-      setQuestions(localQuestions);
-      setStep(1);
-      addToast({ type: 'warning', title: 'Network Issue', message: 'Loaded offline questions.' })
+      console.error('Failed to fetch questions:', err)
+      addToast({ 
+        type: 'error', 
+        title: 'Network Issue', 
+        message: 'Failed to load screening questions from server.' 
+      })
+      setStep(-1) // Go back to child selection or dashboard
     } finally {
-      clearTimeout(safetyTimer);
       setIsLoading(false)
     }
   }
@@ -184,17 +166,14 @@ export default function ParentQuestionnairePage() {
         const payload = {
           firstName: formData.firstName,
           lastName: formData.lastName,
-          dateOfBirth: formData.dateOfBirth,
-          age: Number(age),
-          gender: formData.gender, // Already normalized to "Male" or "Female"
-          medicalHistory: formData.medicalHistory,
-          jaundice: formData.jaundice === 'yes',
-          familyHistory: formData.familyHistory === 'yes'
+          dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+          gender: formData.gender, // "Male" or "Female"
+          medicalHistory: formData.medicalHistory
         }
 
         console.log('Creating child with payload:', payload)
         const newChild = await createChild(payload)
-        childId = newChild.id || newChild.child_id
+        childId = newChild.id || newChild.childId || newChild.child_id
         setSelectedChildId(childId)
       } catch (err) {
         const errorMessage = getBackendErrorMessage(err) || 'Failed to save child profile.'
@@ -212,20 +191,16 @@ export default function ParentQuestionnairePage() {
       setIsSubmitting(true)
       const numericChildId = Number(childId)
       
-      // Backend expects: { request: { childId: number } }
+      // Backend expects: { childId: number } exactly matching StartScreeningRequest
       const startPayload = { 
-        request: { 
-          childId: numericChildId 
-        } 
+        childId: numericChildId 
       }
       
       console.log('Starting screening with payload:', startPayload)
       try {
         await startScreening(startPayload)
       } catch (e) {
-        console.warn('startScreening API failed, checking if we can proceed:', e)
-        // If it's a 400 with "request field is required", we failed the contract. 
-        // If it's other error, maybe we can proceed to questions.
+        console.warn('startScreening API failed. We will proceed to fetch questions.', e)
       }
       
       await fetchQuestions()
@@ -264,62 +239,35 @@ export default function ParentQuestionnairePage() {
           return
         }
 
-        const answerValue = getAnswerValueForQuestion(question, selectedOption)
+        const answerValue = getAnswerValueForQuestion(selectedOption)
         payloadAnswers.push({ 
           questionId, 
-          question_id: questionId,
-          answerValue,
-          answer_value: answerValue
+          answerValue
         })
       }
 
+      // Backend expects: { childId: number, answers: [{ questionId, answerValue }] }
       const payload = { 
-        request: {
-          childId: Number(selectedChildId),
-          answers: payloadAnswers 
-        }
+        childId: Number(selectedChildId),
+        answers: payloadAnswers 
       }
 
       console.log('Submitting answers with payload:', payload)
 
-      let response;
-      try {
-        response = await submitScreening(payload)
-      } catch (backendErr) {
-        console.warn('Backend submitScreening failed, falling back to local AI prediction:', backendErr)
-        
-        // Local fallback logic
-        const insights = generateScreeningInsights({ 
-          name: formData.firstName || 'Child', 
-          dob: formData.dateOfBirth,
-          gender: formData.gender 
-        }, answers)
-        
-        try {
-          const aiPayload = formatForAI(formData, answers, questions)
-          const aiResult = await predictASD(aiPayload)
-          response = {
-            predictionClass: aiResult.label || insights.riskLevel.label,
-            confidenceScore: aiResult.probability ? aiResult.probability / 100 : insights.riskLevel.probability / 100,
-            insights: insights
-          }
-        } catch (aiErr) {
-          console.warn('AI prediction also failed, using basic ruleset:', aiErr)
-          response = {
-            predictionClass: insights.riskLevel.label,
-            confidenceScore: insights.riskLevel.probability / 100,
-            insights: insights
-          }
-        }
-      }
-
-      setResult(response)
+      const response = await submitScreening(payload)
+      
+      // Response DTO: { predictionClass, confidenceScore, createdAt }
+      setResult({
+        predictionClass: response.predictionClass,
+        confidenceScore: response.confidenceScore || 0,
+        createdAt: response.createdAt
+      })
       setStep(questions.length + 1)
     } catch (err) {
       addToast({
         type: 'error',
         title: 'Submission failed',
-        message: 'A critical error occurred while processing your test. Please try again.',
+        message: getBackendErrorMessage(err) || 'A critical error occurred while processing your test. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
@@ -339,8 +287,6 @@ export default function ParentQuestionnairePage() {
         formData.dateOfBirth !== '' &&
         formData.gender !== '' &&
         formData.medicalHistory.trim() !== '' &&
-        formData.jaundice !== '' &&
-        formData.familyHistory !== '' &&
         formData.consent;
 
       if (!isFormValid) {
@@ -629,44 +575,7 @@ export default function ParentQuestionnairePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <p className="text-sm font-bold text-slate-300">History of Jaundice?</p>
-                <div className="flex gap-3">
-                  {['yes', 'no'].map(opt => (
-                    <button 
-                      key={opt}
-                      onClick={() => setFormData({...formData, jaundice: opt})}
-                      className={`flex-1 py-3 rounded-xl font-bold capitalize transition-all duration-300 ${
-                        formData.jaundice === opt ? 
-                        'bg-orange-500 text-white shadow-lg' : 
-                        'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <p className="text-sm font-bold text-slate-300">Family History of Autism?</p>
-                <div className="flex gap-3">
-                  {['yes', 'no'].map(opt => (
-                    <button 
-                      key={opt}
-                      onClick={() => setFormData({...formData, familyHistory: opt})}
-                      className={`flex-1 py-3 rounded-xl font-bold capitalize transition-all duration-300 ${
-                        formData.familyHistory === opt ? 
-                        'bg-orange-500 text-white shadow-lg' : 
-                        'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+
 
             <div className="p-6 bg-orange-500/5 rounded-3xl border border-orange-500/20">
               <label className="flex items-start gap-4 cursor-pointer group">
