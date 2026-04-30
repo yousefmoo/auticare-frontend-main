@@ -6,7 +6,8 @@
 export const config = {
   // API base URL - Set this to your Railway/Production URL in your .env or deployment settings
   // Example: https://your-backend.up.railway.app/api
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'https://auticare-production.up.railway.app',
 
   // AI API URL (HuggingFace space)
   aiApiUrl: import.meta.env.VITE_AI_API_URL || 'https://moaz2545-gradpro.hf.space/predict/all',
