@@ -46,7 +46,6 @@ const navigationConfig = {
     { name: 'Notes', path: '/parent/notes', icon: ClipboardList },
     { name: 'Sessions', path: '/parent/sessions', icon: PlayCircle },
     { name: 'Specialists', path: '/parent/specialists', icon: ShieldPlus },
-    { name: 'Screening Results', path: '/parent/screening-results', icon: TrendingUp },
     { name: 'Re-Test', path: '/parent/retest', icon: RotateCcw },
     { name: 'Profile', path: '/parent/profile', icon: Users },
   ],
@@ -54,19 +53,22 @@ const navigationConfig = {
 
 const roleThemes = {
   [USER_ROLES.DOCTOR]: {
-    active: 'bg-blue-50 text-blue-700',
-    icon: 'text-blue-600',
-    ring: 'ring-blue-200',
+    active: 'bg-orange-50 text-orange-700',
+    icon: 'text-orange-600',
+    ring: 'ring-orange-200',
+    gradient: 'from-blue-600 to-indigo-600',
   },
   [USER_ROLES.THERAPIST]: {
-    active: 'bg-purple-50 text-purple-700',
-    icon: 'text-purple-600',
-    ring: 'ring-purple-200',
+    active: 'bg-orange-50 text-orange-700',
+    icon: 'text-orange-600',
+    ring: 'ring-orange-200',
+    gradient: 'from-violet-600 to-purple-600',
   },
   [USER_ROLES.PARENT]: {
-    active: 'bg-emerald-50 text-emerald-700',
-    icon: 'text-emerald-600',
-    ring: 'ring-emerald-200',
+    active: 'bg-orange-50 text-orange-700',
+    icon: 'text-orange-600',
+    ring: 'ring-orange-200',
+    gradient: 'from-orange-500 to-amber-500',
   },
 }
 
@@ -80,9 +82,10 @@ export default function Sidebar({ role }) {
     subtitle: 'AutiCare care coordination tools',
   }
   const theme = roleThemes[role] || {
-    active: 'bg-primary-50 text-primary-700',
-    icon: 'text-primary-600',
-    ring: 'ring-primary-200',
+    active: 'bg-orange-50 text-orange-700',
+    icon: 'text-orange-600',
+    ring: 'ring-orange-200',
+    gradient: 'from-orange-500 to-amber-500',
   }
 
   const handleNavClick = () => {
@@ -103,22 +106,30 @@ export default function Sidebar({ role }) {
         <button
           aria-label="Close sidebar"
           onClick={closeSidebar}
-          className="fixed inset-0 bg-gray-900/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-30 lg:hidden transition-opacity"
         />
       )}
       <aside
-        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 border-r border-[var(--border)] bg-[var(--card)]/95 backdrop-blur z-40 transform transition-transform duration-300 ${
+        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 border-r border-[var(--border)] bg-[var(--card)]/98 backdrop-blur-xl z-40 transform transition-transform duration-300 ease-out flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="px-4 pb-4 pt-5">
-          <div className={`rounded-[1.75rem] border border-[var(--border)] bg-[var(--card-alt)] p-4 ring-1 ${theme.ring}`}>
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--muted-2)]">{workspace.eyebrow}</p>
-            <p className="mt-2 text-lg font-semibold text-[var(--ink)]">{workspace.title}</p>
-            <p className="text-xs text-[var(--muted)]">{workspace.subtitle}</p>
+        {/* Workspace Badge */}
+        <div className="px-4 pb-4 pt-5 flex-shrink-0">
+          <div className={`rounded-2xl border border-[var(--border)] bg-[var(--card-alt)] p-4 ring-1 ${theme.ring} shadow-sm`}>
+            <div className={`h-8 w-8 rounded-xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center mb-3`}>
+              <span className="text-white font-bold text-xs uppercase tracking-widest">
+                {(role || 'A').charAt(0)}
+              </span>
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--muted-2)] font-semibold">{workspace.eyebrow}</p>
+            <p className="mt-1 text-sm font-bold text-[var(--ink)]">{workspace.title}</p>
+            <p className="text-[11px] text-[var(--muted)] mt-0.5 leading-relaxed">{workspace.subtitle}</p>
           </div>
         </div>
-        <nav className="px-3 pb-6 space-y-1.5">
+
+        {/* Navigation */}
+        <nav className="px-3 pb-4 space-y-0.5 flex-1 overflow-y-auto no-scrollbar">
           {navigation.map((item) => {
             const Icon = item.icon
             return (
@@ -127,29 +138,33 @@ export default function Sidebar({ role }) {
                 to={item.path}
                 onClick={handleNavClick}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-2xl px-3.5 py-3 transition-all duration-200 ${
+                  `flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all duration-200 group ${
                     isActive
-                      ? `${theme.active} border border-[var(--border)] font-semibold shadow-sm`
+                      ? `${theme.active} border border-orange-200/60 font-semibold shadow-sm`
                       : 'text-[var(--muted)] hover:bg-[var(--card-alt)] hover:text-[var(--ink)]'
                   }`
                 }
               >
-                <Icon className={`w-5 h-5 ${theme.icon}`} />
+                <Icon className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110 ${theme.icon}`} />
                 <span className="text-sm">{item.name}</span>
               </NavLink>
             )
           })}
+        </nav>
+
+        {/* Logout */}
+        <div className="flex-shrink-0 px-3 pb-5 pt-2 border-t border-[var(--border)]">
           {role && (
             <button
               type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left text-red-600 transition-all duration-200 hover:bg-red-50"
+              className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-red-500 transition-all duration-200 hover:bg-red-50 hover:text-red-600 group"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
               <span className="text-sm font-medium">Logout</span>
             </button>
           )}
-        </nav>
+        </div>
       </aside>
     </>
   )

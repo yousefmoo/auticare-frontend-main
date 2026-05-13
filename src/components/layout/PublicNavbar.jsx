@@ -20,7 +20,7 @@ export default function PublicNavbar() {
   const linkClasses = ({ isActive }) =>
     `px-3 py-2 rounded-full text-xs tracking-widest font-bold transition-all duration-200 ${
       isActive
-        ? 'text-[var(--ink)] border-b-2 border-emerald-500 rounded-none'
+        ? 'text-[var(--ink)] border-b-2 border-orange-500 rounded-none'
         : 'text-[var(--muted)] hover:text-[var(--ink)]'
     }`
 
@@ -46,13 +46,13 @@ export default function PublicNavbar() {
           <div className="hidden md:flex items-center gap-4">
             <NavLink
               to="/login"
-              className="px-6 py-2 rounded-full bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition-all shadow-md"
+              className="px-6 py-2 rounded-full bg-[var(--ink)] text-[var(--surface)] text-sm font-bold hover:opacity-90 transition-all shadow-md"
             >
               Login
             </NavLink>
             <NavLink
               to="/signup"
-              className="px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-black transition-all shadow-md"
+              className="px-6 py-2 rounded-full bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition-all shadow-md shadow-orange-500/20"
             >
               Signup
             </NavLink>
@@ -79,7 +79,7 @@ export default function PublicNavbar() {
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
                   `block px-4 py-3 rounded-2xl text-sm font-bold tracking-widest ${
-                    isActive ? 'bg-emerald-50 text-emerald-700' : 'text-[var(--muted)]'
+                    isActive ? 'bg-orange-50 text-orange-700' : 'text-[var(--muted)]'
                   }`
                 }
               >

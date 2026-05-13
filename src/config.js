@@ -19,7 +19,7 @@ function sanitizeBaseUrl(url) {
   return sanitized
 }
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://auticare-production.up.railway.app'
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://auticare-production-828c.up.railway.app'
 
 export const config = {
   // API base URL — always sanitized to strip trailing /api or /

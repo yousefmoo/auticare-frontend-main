@@ -39,7 +39,7 @@ export default function Login() {
           navigate('/therapist/home')
           break
         case USER_ROLES.PARENT:
-          navigate('/parent/questionnaire')
+          navigate('/parent/home')
           break
         default:
           navigate('/')
@@ -147,7 +147,7 @@ export default function Login() {
               </button>
             </div>
 
-            <button type="submit" className="w-full btn-primary flex items-center justify-center gap-2" disabled={loading}>
+            <button type="submit" className="w-full btn-primary flex items-center justify-center gap-2 py-3 text-base" disabled={loading}>
               {loading ? (
                 <>
                   <LoadingSpinner size="sm" />

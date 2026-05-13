@@ -27,7 +27,7 @@ import ParentHomeDashboard from "@/features/parent/ParentHomeDashboard";
 import ParentCareRecommendations from "@/features/parent/ParentCareRecommendations";
 import ParentFeedbackPage from "@/features/parent/ParentFeedbackPage";
 import ParentNotesDashboard from "@/features/parent/ParentNotesDashboard";
-import ScreeningResultsPage from "@/features/parent/ScreeningResultsPage";
+
 import ParentSessionsDashboard from "@/features/parent/ParentSessionsDashboard";
 import ParentWeeklyPlanPro from "@/features/parent/ParentWeeklyPlanPro";
 import ProgressStatistics from "@/features/parent/ProgressStatistics";
@@ -125,8 +125,7 @@ const router = createBrowserRouter([
       { path: "home", element: <ParentHomeDashboard /> },
       { path: "dashboard", element: <Navigate to="/parent/home" replace /> },
       { path: "notes", element: <ParentNotesDashboard /> },
-      { path: "screening-results", element: <ScreeningResultsPage /> },
-      { path: "screening-results/:childId", element: <ScreeningResultsPage /> },
+
       { path: "care-recommendations", element: <ParentCareRecommendations /> },
       { path: "feedback", element: <ParentFeedbackPage /> },
       { path: "weekly-plan", element: <ParentWeeklyPlanPro /> },

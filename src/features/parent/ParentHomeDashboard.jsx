@@ -8,7 +8,8 @@ import { getParentDashboard } from '@/api/dashboard.api'
 import { getUpcomingBookings } from '@/api/sessions.api'
 import { getChildren, createChild } from '@/api/children.api'
 import { getNotes } from '@/api/notes.api'
-import { getDemoScreeningResult, getStoredScreeningResult } from '@/features/screening/screeningInsights'
+
+
 import SessionHighlight from '@/features/sessions/components/SessionHighlight'
 import { DashboardEmpty, DashboardSkeleton } from '@/components/shared/DashboardState'
 
@@ -27,7 +28,7 @@ export default function ParentHomeDashboard() {
     picture: null,
   })
 
-  const screeningResult = getStoredScreeningResult() || getDemoScreeningResult()
+
 
   const handleAddChild = async (e) => {
     e.preventDefault()
@@ -84,27 +85,27 @@ export default function ParentHomeDashboard() {
 
   return (
     <div className="fade-in space-y-6">
-      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-emerald-800 via-teal-700 to-sky-700 p-6 text-white shadow-2xl sm:p-8">
+      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 p-6 text-white shadow-2xl shadow-orange-500/20 sm:p-8">
         <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
         <div className="relative flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-emerald-100">Parent home</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-orange-100">Parent Dashboard</p>
             <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Welcome back, {user?.name || 'Parent'}</h1>
-            <p className="mt-3 max-w-2xl text-sm text-emerald-50 sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm text-orange-50 sm:text-base">
               See your next session, the latest report highlights, and the most important care notes without digging through the app.
             </p>
           </div>
 
           <div className="rounded-3xl bg-white/10 px-5 py-4 backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.25em] text-emerald-100">Dashboard Stats</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-orange-100">Dashboard Stats</p>
             <div className="mt-2 grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xl font-bold">{dashboardData?.totalChildren || 0}</p>
-                <p className="text-xs text-emerald-50">Children</p>
+                <p className="text-xs text-orange-100">Children</p>
               </div>
               <div>
                 <p className="text-xl font-bold">{dashboardData?.upcomingBookings || 0}</p>
-                <p className="text-xs text-emerald-50">Bookings</p>
+                <p className="text-xs text-orange-100">Bookings</p>
               </div>
             </div>
           </div>
@@ -278,7 +279,7 @@ export default function ParentHomeDashboard() {
               <BarChart3 className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-[var(--ink)]">الجلسات القادمة</h2>
+              <h2 className="text-xl font-semibold text-[var(--ink)]">Upcoming Sessions</h2>
               <p className="text-sm text-[var(--muted)]">Your next meetings with join links and notes.</p>
             </div>
           </div>
@@ -286,7 +287,8 @@ export default function ParentHomeDashboard() {
           <div className="mt-5 space-y-3">
             {sessionsLoading && <DashboardSkeleton cards={2} className="md:grid-cols-1 xl:grid-cols-1" />}
             {!sessionsLoading && upcomingSessions.length === 0 && (
-              <DashboardEmpty title="لا توجد جلسات حاليا" description="ستظهر هنا الجلسات القادمة للأسرة عند توفرها." />
+              <DashboardEmpty title="No upcoming sessions" description="Your upcoming family sessions will appear here when available." />
+
             )}
             {!sessionsLoading && upcomingSessions.map((session) => (
               <div key={session.id} className="rounded-[1.5rem] border border-[var(--border)] p-4">
@@ -338,7 +340,7 @@ export default function ParentHomeDashboard() {
         </section>
 
         <section className="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-[var(--ink)]">ملخص التقرير</h2>
+          <h2 className="text-xl font-semibold text-[var(--ink)]">Report Summary</h2>
           <div className="mt-5 space-y-3">
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Progress</p>
@@ -346,8 +348,8 @@ export default function ParentHomeDashboard() {
               <p className="mt-2 text-sm text-[var(--muted)]">Communication and routines are moving in the right direction.</p>
             </div>
             <div className="rounded-[1.5rem] bg-[var(--card-alt)] p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Screening result</p>
-              <p className="mt-2 text-2xl font-bold text-[var(--ink)]">{screeningResult.riskLevel.label}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-2)]">Last Screening</p>
+              <p className="mt-2 text-2xl font-bold text-[var(--ink)]">View Results</p>
               <p className="mt-2 text-sm text-[var(--muted)]">Use the reports page to download the latest summary PDF.</p>
             </div>
           </div>
